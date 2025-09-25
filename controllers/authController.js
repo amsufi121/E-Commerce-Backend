@@ -1,0 +1,47 @@
+const User = require("../modal/user");
+const bcrypt = require("bcrypt");
+
+const register = async (req, res) => {
+  const { name, email, password } = req.body;
+  if (!name) {
+    return res.status(400).json({ message: "name not found" });
+  }
+  if (!email || !email.includes("@")) {
+    return res.status(400).json({ message: "email not found" });
+  }
+  try {
+    const user = await User.find({ email: email });
+
+    if (user.length) {
+      return res.status(400).json({ message: "email is already present" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "error" });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashpassword = await bcrypt.hash(password, salt);
+
+  // const newUser = await User.create({
+  //   name: name,
+  //   email: email,
+  //   password: hashpassword,
+  // });
+
+  const newUser = new User({
+    name: name,
+    email: email,
+    password: hashpassword,
+  });
+
+  await newUser.save();
+
+  res.status(200).json({ message: "successfull" });
+};
+
+const login = (req, res) => {};
+
+module.exports = {
+  register,
+  login,
+};
