@@ -39,7 +39,31 @@ const register = async (req, res) => {
   res.status(200).json({ message: "successfull" });
 };
 
-const login = (req, res) => {};
+const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !email.includes("@")) {
+    return res.status(400).json({ message: "email not found" });
+  }
+  if (!password) {
+    return res.status(400).json({ message: "password not found" });
+  }
+  try {
+    var user = await User.find({ email: email });
+
+    if (user.length == 0) {
+      return res.status(400).json({ message: "email is not present" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "error" });
+  }
+  const passwordCheck = await bcrypt.compare(password, user[0].password);
+
+  if (passwordCheck == 0) {
+    return res.status(400).json({ message: "incorrect Password" });
+  }
+  return res.status(200).json({ message: "Login Successfully" });
+};
 
 module.exports = {
   register,
