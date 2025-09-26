@@ -1,5 +1,6 @@
 const User = require("../modal/user");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const register = async (req, res) => {
   const { name, email, password } = req.body;
@@ -62,7 +63,10 @@ const login = async (req, res) => {
   if (passwordCheck == 0) {
     return res.status(400).json({ message: "incorrect Password" });
   }
-  return res.status(200).json({ message: "Login Successfully" });
+
+  const token = jwt.sign(user[0].id, process.sign.SECRET_KEY);
+
+  return res.status(200).json({ message: "Login Successfully", token: token });
 };
 
 module.exports = {
